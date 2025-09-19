@@ -48,11 +48,11 @@ public class CommentService {
     }
 
     public List<CommentResponse> getComments(long todoId) {
-        List<Comment> commentList = commentRepository.findByTodoIdWithUser(todoId);
+        List<Comment> commentList = commentRepository.findByTodoIdWithUser(todoId); //쿼리 1번 실행 즉 n개의 comment 객체가 담김
 
         List<CommentResponse> dtoList = new ArrayList<>();
         for (Comment comment : commentList) {
-            User user = comment.getUser();
+            User user = comment.getUser(); //이게 호출 될때마다 해당 유저 정보를 가져오는 추가쿼리가 발생하게됨
             CommentResponse dto = new CommentResponse(
                     comment.getId(),
                     comment.getContents(),
