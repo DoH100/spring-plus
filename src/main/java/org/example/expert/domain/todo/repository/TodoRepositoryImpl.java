@@ -9,7 +9,7 @@ import org.example.expert.domain.user.entity.QUser;
 
 
 @RequiredArgsConstructor
-public class TodoRepositoryImp implements TodoRepositoryQueryDsl {
+public class TodoRepositoryImpl implements TodoRepositoryQueryDsl {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
