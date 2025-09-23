@@ -108,6 +108,6 @@ return queryFactory.selectFrom(todo)
 
 ---
 
-## 🚀 정리
+##  정리
 - **Level 1**: @Transactional 오류 해결, JWT 확장, JPA 동적 검색, 테스트 코드 수정, AOP 수정
 - **Level 2**: Cascade 자동 저장, N+1 해결, QueryDSL 전환, Spring Security 도
