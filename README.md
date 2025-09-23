@@ -8,11 +8,24 @@ Spring Boot + JPA + Security + AOP를 활용하여 할 일 관리 애플리케�
 ## Level 1: 기본 기능 구현 및 오류 수정
 
 ### 1. @Transactional 문제 해결
-- **문제**: 서비스 클래스 전체에 `@Transactional(readOnly = true)`가 적용되어 쓰기 작업 불가능.
-- **해결**: `saveTodo()` 메소드에 `@Transactional`을 개별 추가하여 정상 저장 가능하도록 수정.
+- **문제**: 클래스 전체에 `@Transactional(readOnly = true)`가 적용되어 쓰기 작업 불가능.
+- **해결**: `saveTodo()` 메소드에 개별적으로 `@Transactional`을 추가하여 정상 저장 가능하도록 수정.
 
----
+```java
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class TodoService {
 
+    private final TodoRepository todoRepository;
+
+    @Transactional // 쓰기 가능 트랜잭션으로 오버라이딩
+    public Todo saveTodo(TodoRequest request, User user) {
+        Todo todo = new Todo(request.getTitle(), request.getContents(), user);
+        return todoRepository.save(todo);
+    }
+}
+```
 ### 2. JWT에 닉네임 정보 추가
 - **요구사항**: JWT에 `nickname` 포함.
 - **해결**:
@@ -27,7 +40,14 @@ Spring Boot + JPA + Security + AOP를 활용하여 할 일 관리 애플리케�
 - **해결**:
     - JPQL/Specification 기반 동적 검색 구현.
     - `null` 조건은 WHERE 절에서 제외되도록 처리.
-
+```@Query("SELECT t FROM Todo t " +
+       "WHERE (:weather IS NULL OR t.weather = :weather) " +
+       "AND (:start IS NULL OR t.modifiedAt >= :start) " +
+       "AND (:end IS NULL OR t.modifiedAt <= :end)")
+List<Todo> searchTodos(@Param("weather") String weather,
+                       @Param("start") LocalDateTime start,
+                       @Param("end") LocalDateTime end);
+ ```
 ---
 
 ### 4. 컨트롤러 테스트 코드 수정
@@ -67,7 +87,15 @@ Spring Boot + JPA + Security + AOP를 활용하여 할 일 관리 애플리케�
 - **해결**:
     - `JPAQueryFactory`와 Q-Type 활용.
     - 타입 안정성 확보 및 N+1 방지.
+```
+QTodo todo = QTodo.todo;
+QUser user = QUser.user;
 
+return queryFactory.selectFrom(todo)
+        .join(todo.user, user).fetchJoin()
+        .where(todo.id.eq(todoId))
+        .fetchOne();
+```
 ---
 
 ### 9. Spring Security 전환
